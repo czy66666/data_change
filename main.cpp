@@ -97,8 +97,10 @@ int main()
 	FILE* file=fopen("znsyxl-16kbps.mp3", "rb");
 	FILE* fout= fopen("out.pcm","wb");
 
+	//获取文件大小
 	fseek(file, 0, SEEK_END);
 	int data_size = (int)ftell(file);
+	printf("data size:%d\n",data_size);
 	//初始化minimp3的解码器结构
 	static mp3dec_t mp3d;
 	mp3dec_init(&mp3d);
@@ -107,7 +109,7 @@ int main()
 	mp3dec_frame_info_t info;
 	short pcm[1024*16];
 	int mp3len = 0;
-	int32_t inlen = 0;
+	int inlen = 0;
 	int s32Ret = 0;
 	int32_t samples = 0;
 	int i = 0;
@@ -126,9 +128,10 @@ int main()
 		printf("s32Ret:%d\n",s32Ret);
 		// samples = mp3dec_decode_frame(&mp3d, input_buf, 1024, pcm, &info);
 		inlen += info.frame_bytes;
+		printf("inlen:%d\n",inlen);
 		printf("samples:%d\n",samples);
 		printf("info:%d %d %d %d %d %d\n",info.bitrate_kbps,info.channels,info.frame_bytes,info.frame_offset,info.hz,info.layer); 
-		if(samples!=0)
+		if(samples>0 && info.frame_bytes>0)
 			fwrite(pcm, sizeof(short), samples, fout);
 		i++;
 	}
