@@ -10,29 +10,29 @@ int main()
 	// unsigned char *input_buf = NULL;
 	// int data_size = 0;
 
-	// //´ò¿ªMP3ÎÄ¼þ
+	// //ï¿½ï¿½MP3ï¿½Ä¼ï¿½
 	// FILE* file=fopen("znsyxl-32kbps.mp3", "rb");
 	// FILE* fout= fopen("out.pcm","wb");
 	
-	// //»ñÈ¡MP3ÎÄ¼þ³¤¶È
+	// //ï¿½ï¿½È¡MP3ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	// fseek(file, 0, SEEK_END);
 	// data_size = (int)ftell(file);
 
-	// //¶ÁÈ¡Õû¸öMP3ÎÄ¼þ
+	// //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½MP3ï¿½Ä¼ï¿½
 	// fseek(file, 0, SEEK_SET);
 	// input_buf = (unsigned char *)malloc(data_size);
 	// fread(input_buf, 1, data_size, file);
 
-	// //³õÊ¼»¯minimp3µÄ½âÂëÆ÷½á¹¹
+	// //ï¿½ï¿½Ê¼ï¿½ï¿½minimp3ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹
 	// static mp3dec_t mp3d;
 	// mp3dec_init(&mp3d);
 
-	// //¶¨Òåmp3dec_frame_info_t
+	// //ï¿½ï¿½ï¿½ï¿½mp3dec_frame_info_t
 	// mp3dec_frame_info_t info;
 	// short pcm[MINIMP3_MAX_SAMPLES_PER_FRAME];
 	// int mp3len = 0;
 
-	// //ÖðÖ¡½âÂë²¢ÇÒ²¥·ÅMP3
+	// //ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ë²¢ï¿½Ò²ï¿½ï¿½ï¿½MP3
 	// int samples = mp3dec_decode_frame(&mp3d, input_buf, data_size, pcm, &info);
 	// while(samples) {
 	// 	//play(pcm, samples);
@@ -48,29 +48,29 @@ int main()
 
 	unsigned char *input_buf = NULL;
 	int data_size = 0;
-	//´ò¿ªMP3ÎÄ¼þ
+	//ï¿½ï¿½MP3ï¿½Ä¼ï¿½
 	FILE* file=fopen("znsyxl-16kbps.mp3", "rb");
 	FILE* fout= fopen("out.pcm","wb");
 
-	//»ñÈ¡MP3ÎÄ¼þ³¤¶È
+	//ï¿½ï¿½È¡MP3ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	fseek(file, 0, SEEK_END);
 	data_size = (int)ftell(file);
 
-	//¶ÁÈ¡Õû¸öMP3ÎÄ¼þ
+	//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½MP3ï¿½Ä¼ï¿½
 	fseek(file, 0, SEEK_SET);
 	input_buf = (unsigned char *)malloc(data_size);
 	fread(input_buf, 1, data_size, file);
 	
-	//³õÊ¼»¯minimp3µÄ½âÂëÆ÷½á¹¹
+	//ï¿½ï¿½Ê¼ï¿½ï¿½minimp3ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹
 	static mp3dec_t mp3d;
 	mp3dec_init(&mp3d);
 	
-	//¶¨Òåmp3dec_frame_info_t
+	//ï¿½ï¿½ï¿½ï¿½mp3dec_frame_info_t
 	mp3dec_frame_info_t info;
 	short pcm[1024*16];
 	int mp3len = 0;
 	int i=0;
-	//ÖðÖ¡½âÂë²¢ÇÒ²¥·ÅMP3
+	//ï¿½ï¿½Ö¡ï¿½ï¿½ï¿½ë²¢ï¿½Ò²ï¿½ï¿½ï¿½MP3
 	int samples = mp3dec_decode_frame(&mp3d, input_buf, data_size, pcm, &info);
 	while(samples){
 	    mp3len += info.frame_bytes;
@@ -88,13 +88,16 @@ int main()
 }
 
 #else
+
+#define REDA_SIZE 2048
 typedef enum
 {
 	MONO			= 0,	//Single track
 	DUAL_CHANNEL	= 1,	//Dual track
 	DIFFERENTIAL	= 2,	//Differential signal
 }ChannelSel;
-#define REDA_SIZE 1024
+uint8_t outpcmchannel[3]= {1,2,2};
+
 int audio_play_mp3file(const char * filein,ChannelSel channelsel_)
 {
 	
@@ -112,12 +115,11 @@ int audio_play_mp3file(const char * filein,ChannelSel channelsel_)
 	short pcm[REDA_SIZE];
 	short outpcm[REDA_SIZE*2];
 	int inlen = 0;
-	int s32Ret = 0;
 	int read_once_size = REDA_SIZE;
 
 	while(1){
 		fseek(file,inlen,SEEK_SET);
-		s32Ret = fread(input_buf, sizeof(char), read_once_size, file);
+		int s32Ret = fread(input_buf, sizeof(char), read_once_size, file);
 		if(s32Ret<=0)
 			break;
 		int32_t samples = mp3dec_decode_frame(&mp3d, input_buf, read_once_size, pcm, &info);
@@ -138,19 +140,19 @@ int audio_play_mp3file(const char * filein,ChannelSel channelsel_)
 				}
 				else if(info.channels == 2){
 					for(int index=0; index<samples; index++){
-						outpcm[index] = pcm[index*2];
+						outpcm[index] = pcm[index*info.channels];
 					}
 				}
 			}
 			else if(channelsel_ == DUAL_CHANNEL){
 				if(info.channels == 1){
-						for(int index=0; index<samples; index++){
+					for(int index=0; index<samples; index++){
 						outpcm[index*2]   = pcm[index];
 						outpcm[index*2+1] = pcm[index];
 					}
 				}
 				else if(info.channels == 2){
-					memcpy(outpcm,pcm,samples*sizeof(short));
+					memcpy(outpcm,pcm,samples*sizeof(short)*info.channels);
 				}
 			}
 			else if(channelsel_ == DIFFERENTIAL){
@@ -161,14 +163,14 @@ int audio_play_mp3file(const char * filein,ChannelSel channelsel_)
 					}
 				}
 				else if(info.channels == 2){
-					for(int index=1; index<samples*info.channels; index++){
-						outpcm[index*2] = 0xffff - pcm[index*2];
+					for(int index=1; index<samples; index++){
+						outpcm[index*2] = pcm[index*2];
 						outpcm[index*2+1] = 0xffff - pcm[index*2+1];
 					}
 				}
 				
 			}
-			fwrite(outpcm, sizeof(short), samples*info.channels, fout);
+			fwrite(outpcm, sizeof(short), samples * outpcmchannel[channelsel_], fout);
 		}
 		//The decoder skipped ID3 or invalid data
 		else if(samples == 0 && info.frame_bytes > 0){
@@ -184,57 +186,6 @@ int audio_play_mp3file(const char * filein,ChannelSel channelsel_)
 }
 int main()
 {
-	// unsigned char input_buf[1024];
-	// //open mp3 file
-	// FILE* file=fopen("zhifubaosk.mp3", "rb");
-	// FILE* fout= fopen("out.pcm","wb");
-
-	// //init minimp3 coder struct
-	// static mp3dec_t mp3d;
-	// mp3dec_init(&mp3d);
-
-	// //define mp3dec_frame_info_t
-	// mp3dec_frame_info_t info;
-	// short OutPcmMono[1024];
-	// short OutPcmDual[1024*2];
-	// int inlen = 0;
-	// int s32Ret = 0;
-	// int read_once_size = 1024;
-
-	// while(1){
-	// 	fseek(file,inlen,SEEK_SET);
-	// 	s32Ret = fread(input_buf, sizeof(char), read_once_size, file);
-	// 	if(s32Ret<=0)
-	// 		break;
-	// 	int32_t samples = mp3dec_decode_frame(&mp3d, input_buf, read_once_size, OutPcmMono, &info);
-	
-	// 	inlen += info.frame_bytes;
-	// 	read_once_size = info.frame_bytes;
-
-	// 	printf("s32Ret:%d\n",s32Ret);
-	// 	printf("inlen:%d\n",inlen);
-	// 	printf("samples:%d\n",samples);
-	// 	printf("info:%d %d %d %d %d %d\n",info.bitrate_kbps,info.channels,info.frame_bytes,info.frame_offset,info.hz,info.layer); 
-
-	// 	//success coder
-	// 	if(samples>0 && info.frame_bytes>0){
-	// 		for(int asdf=0;asdf<samples;asdf++){
-	// 			OutPcmStereo[asdf*2] = OutPcmMono[asdf];
-	// 			OutPcmStereo[asdf*2+1] = 0xffff - OutPcmMono[asdf];
-	// 		}
-	// 		fwrite(OutPcmStereo, sizeof(short), samples*2, fout);
-	// 	}
-	// 	//The decoder skipped ID3 or invalid data
-	// 	else if(samples == 0 && info.frame_bytes > 0){
-	// 		continue;
-	// 	}
-	// 	//Insufficient data
-	// 	else if (samples == 0 && info.frame_bytes == 0){
-	// 		printf("data error!!!\n");
-	// 	}
-	// }
-	// fclose(fout);
-	// fclose(file);
 	audio_play_mp3file("znsyxl-16kbps.mp3",MONO);
 }
 
